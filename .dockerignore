@@ -1,0 +1,32 @@
+# Git
+.git
+.gitignore
+
+# Dependencies (re-installed during build)
+node_modules/
+
+# Build output (generated during Docker build)
+dist/
+
+# Dev environment
+.env
+.env.*
+!.env.example
+
+# Editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Tests
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+
+# Misc
+*.log
+README.md

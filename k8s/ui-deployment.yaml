@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pdf-ocr-frontend
+  namespace: pdf-ocr
+  labels:
+    app: pdf-ocr-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pdf-ocr-frontend
+  template:
+    metadata:
+      labels:
+        app: pdf-ocr-frontend
+    spec:
+      containers:
+        - name: pdf-ocr-frontend
+          image: repo.arffys.com/pdf_ocr_frontend:v0.7
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+      imagePullSecrets:
+        - name: docker-auth
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pdf-ocr-frontend-service
+  namespace: pdf-ocr
+spec:
+  selector:
+    app: pdf-ocr-frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pdf-ocr-frontend-ingress
+  namespace: pdf-ocr
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - pdf-ocr.arffys.com
+      secretName: arffy-tls
+  rules:
+    - host: pdf-ocr.arffys.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: pdf-ocr-frontend-service
+                port:
+                  number: 80
